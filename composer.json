@@ -1,0 +1,23 @@
+{
+    "name": "dannyvdsluijs/advent-of-code-2022",
+    "description": "Solutions to the Advent of Code 2022 puzzles",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Danny van der Sluijs",
+            "email": "danny.vandersluijs@icloud.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^8.1",
+        "rector/rector": "^0.14.8",
+        "phpstan/phpstan": "^1.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dannyvdsluijs\\AdventOfCode2022\\": "src"
+        }
+    }
+}
