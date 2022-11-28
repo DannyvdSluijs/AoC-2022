@@ -2,6 +2,7 @@
 <?php
 
 use Dannyvdsluijs\AdventOfCode2022;
+use Dannyvdsluijs\AdventOfCode2022\DayPreparation;
 
 require_once 'vendor/autoload.php';
 
@@ -12,24 +13,9 @@ if ($argc < 2 || $argc > 3 || !is_numeric($argv[1])) {
     exit(255);
 }
 
-if ($argv[2] ?? '' === 'input') {
-    // Take session from .session file and get the inputs
-    $session = file_get_contents(sprintf('%s/.session', __DIR__));
-    if ($session === false) {
-        throw new RuntimeException('Unable to read from .session file');
-    }
-    $ch = curl_init(sprintf("https://adventofcode.com/2105/day/%d/input", $argv[1]));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [sprintf('Cookie: session=%s', $session)]);
-    $output = curl_exec($ch);
-    file_put_contents(sprintf(__DIR__ . '/inputs/%02d.txt', $argv[1]), $output);
-
-    // Copy the DayXX.template and replace day number
-    $content = file_get_contents(sprintf('%s/src/DayXX.template', __DIR__, $argv[1]));
-    $content = str_replace('DayXX', sprintf("Day%02d", $argv[1]), $content);
-    file_put_contents(sprintf('%s/src/Day%02d.php', __DIR__, $argv[1]), $content);
-
+if (($argv[2] ?? '') === 'input') {
+    $preparation = new DayPreparation(2022, (int) $argv[1]);
+    $preparation();
     exit(0);
 }
 
