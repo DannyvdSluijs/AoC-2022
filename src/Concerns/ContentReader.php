@@ -6,7 +6,7 @@ namespace Dannyvdsluijs\AdventOfCode2022\Concerns;
 
 trait ContentReader
 {
-    protected function readFile(string $fileName): string
+    protected function readFile(string $fileName, bool $trim = true): string
     {
         $content = file_get_contents($fileName);
 
@@ -15,18 +15,21 @@ trait ContentReader
 
         }
 
-        return trim($content);
+        if ($trim) {
+            $content = trim($content);
+        }
+        return $content;
     }
 
-    protected function readInputForDay(int $day): string
+    protected function readInputForDay(int $day, bool $trim = true): string
     {
-        return $this->readFile(__DIR__ . sprintf('/../../inputs/day%02d.txt', $day));
+        return $this->readFile(__DIR__ . sprintf('/../../inputs/day%02d.txt', $day), $trim);
     }
 
-    protected function readInput(): string
+    protected function readInput(bool $trim = true): string
     {
         // Derive the day from the class name (using late static binding)
-        return $this->readInputForDay((int) substr(static::class, -2));
+        return $this->readInputForDay((int) substr(static::class, -2), $trim);
     }
 
     /** @return array<int, string> */
