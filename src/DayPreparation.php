@@ -6,7 +6,6 @@ namespace Dannyvdsluijs\AdventOfCode2022;
 
 class DayPreparation
 {
-
     public function __construct(
         public readonly int $year,
         public readonly int $day,
