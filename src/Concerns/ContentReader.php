@@ -61,4 +61,15 @@ trait ContentReader
     {
         return array_map(str_split(...), $this->readInputAsLines());
     }
+
+    /** @return array<int, array<int, string>> */
+    public function readInputAsGridOfNumbers(): array
+    {
+        $grid = [];
+        foreach ($this->readInputAsLines() as $line) {
+            $grid[] = array_map(intval(...), str_split($line));
+        }
+
+        return $grid;
+    }
 }
