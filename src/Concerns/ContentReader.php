@@ -63,6 +63,12 @@ trait ContentReader
     }
 
     /** @return array<int, array<int, string>> */
+    public function readInputAsWords(): array
+    {
+        return array_map(fn(string $line) => explode(' ', $line), $this->readInputAsLines());
+    }
+
+    /** @return array<int, array<int, string>> */
     public function readInputAsGridOfNumbers(): array
     {
         $grid = [];
