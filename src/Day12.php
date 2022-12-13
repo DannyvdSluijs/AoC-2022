@@ -42,13 +42,14 @@ class Day12
             throw new \Exception('Unable to find E');
         }
 
-        $pathLength = $this->findPathLength([
+        $minPathLength = $this->findPathLength([
             'grid' => $grid,
             'start' => $start,
-            'target' => $target,
+            'isInvalid' => fn($currentElevation, $nextElevation) => $nextElevation > $currentElevation + 1,
+            'isFinish' => fn(array $state) => $state['x'] === $target['x'] && $state['y'] === $target['y'],
         ]);
 
-        return (string) $pathLength;
+        return (string) $minPathLength;
     }
 
     public function partTwo(): string
@@ -56,56 +57,47 @@ class Day12
         $grid = $this->readInputAsGridOfCharacters();
         $numberOfRows = count($grid);
         $numberOfColumns = count($grid[0]);
-        $startingPoints = [];
 
         for ($y = 0; $y <$numberOfRows; $y++) {
             for ($x = 0; $x < $numberOfColumns; $x++) {
-                if ($grid[$y][$x] === 'S' || $grid[$y][$x] === 'a') {
-                    $startingPoints[] = [
-                        'x' => $x,
-                        'y' => $y,
-                        'elevation' => ord('a'),
-                    ];
-                }
                 if ($grid[$y][$x] === 'E') {
                     $target = [
                         'x' => $x,
                         'y' => $y,
-                        'elevation' => 'z',
+                        'elevation' => ord('z'),
                     ];
                 }
             }
         }
 
-        if (empty($startingPoints)) {
-            throw new \Exception('Unable to find S or other elevation with value a');
-        }
         if (is_null($target)) {
             throw new \Exception('Unable to find E');
         }
 
-        $pathLengths =  array_map(fn($start) => $this->findPathLength([
+        $minPathLength = $this->findPathLength([
             'grid' => $grid,
-            'start' => $start,
-            'target' => $target,
-        ]), $startingPoints);
+            'start' => $target,
+            'isInvalid' => fn($currentElevation, $nextElevation) => $nextElevation < $currentElevation - 1,
+            'isFinish' => fn(array $state) => $state['elevation'] === ord('a'),
+        ]);
 
-        return (string) min($pathLengths);
+        return (string) $minPathLength;
     }
 
     private function findPathLength(array $state): int
     {
         $grid = $state['grid'];
         $start = $state['start'];
-        $target = $state['target'];
+        $isInvalid = $state['isInvalid'];
+        $isFinish = $state['isFinish'];
+
         $queue = new \SplPriorityQueue();
         $queue->insert([
-                'elevation' =>  $start['elevation'],
-                'x' => $start['x'],
-                'y' => $start['y'],
-                'steps' => 0,
-                'countA' => 0,
-            ],
+            'elevation' =>  $start['elevation'],
+            'x' => $start['x'],
+            'y' => $start['y'],
+            'steps' => 0,
+        ],
             5000
         );
         $queued = [$start['x'] . ',' . $start['y']];
@@ -113,7 +105,7 @@ class Day12
 
         while ($queue->valid()) {
             $state = $queue->extract();
-            if ($state['x'] === $target['x'] && $state['y'] === $target['y']) {
+            if ($isFinish($state)) {
                 return $state['steps'];
             }
 
@@ -130,31 +122,25 @@ class Day12
                 }
 
                 $value = $grid[$newY][$newX];
+                $value = $value !== 'S' ? $value : 'a';
                 $value = $value !== 'E' ? $value : 'z';
                 $next = ord($value);
 
-                if ($value === 'a') {
-                    $state['countA']++;
-                    if ($state['countA'] === 2) {
-                        continue;
-                    }
-                }
-
-                if ($next > ($state['elevation'] + 1)) {
+                if ($isInvalid($state['elevation'], $next)) {
                     continue;
                 }
-                $priority = 100_000 - ($state['steps'] + 1) - (abs($newX - $target['x']) + abs($newY - $target['y']));
+
+                $priority = 100_000 - ($state['steps'] + 1);
                 $queue->insert([
                     'elevation' => $next,
                     'x' => $newX,
                     'y' => $newY,
                     'steps' => $state['steps'] + 1,
-                    'countA' => $state['countA'],
                 ], $priority);
                 $queued[] = $key;
             }
         }
 
-        return 1_000_000;
+        return 0;
     }
 }
