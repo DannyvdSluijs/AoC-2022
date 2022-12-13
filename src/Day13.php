@@ -23,7 +23,7 @@ class Day13
         $pairsCount = count($pairs);
         $sum = 0;
         for ($i = 0; $i < $pairsCount; $i++) {
-            if ($this->packetDataIsInOrder($pairs[$i][0], $pairs[$i][1])) {
+            if ($this->packetDataIsInOrder($pairs[$i][0], $pairs[$i][1]) === -1) {
                 $sum += $i + 1;
             }
         }
@@ -40,55 +40,35 @@ class Day13
         $packets = explode("\n", $content);
         $packets = array_map(fn($line) => json_decode($line), $packets);
 
-        usort($packets, fn ($left, $right) => !$this->packetDataIsInOrder($left, $right) ? 1 : -1);
+        usort($packets, fn ($left, $right) => $this->packetDataIsInOrder($left, $right));
 
-        $packetCount = count($packets);
-        $divider = 1;
-        for($i = 0; $i < $packetCount; $i++) {
-            $packetAsString = json_encode($packets[$i]);
-
-            if ($packetAsString === '[[2]]' || $packetAsString === '[[6]]') {
-                $divider *= $i +1;
-            }
-        }
-
-        return (string) $divider;
+        return (string) ((array_search([[2]], $packets) + 1) * (array_search([[6]], $packets) + 1));
     }
 
-    private function packetDataIsInOrder(int|array $left, int|array $right): ?bool
+    private function packetDataIsInOrder(int|array $left, int|array $right): int
     {
-        static $nesting = 0;
-//        printf("%sCompare %s vs %s\r\n", str_repeat('  ', $nesting), json_encode($left), json_encode($right));
-        $nesting++;
         if (is_int($left) && is_int($right)) {
-
-            if ($left === $right) {
-                return null;
-            }
-            return $left < $right;
+            return $left <=> $right;
         }
-
         if (is_int($left) || is_int($right)) {
             return $this->packetDataIsInOrder((array) $left, (array) $right);
         }
 
-        $countLeft = count($left);
-        $countRight = count($right);
-        $maxCount = max($countLeft, $countRight);
+        $maxCount = max(count($left), count($right));
 
         for ($x = 0; $x < $maxCount; $x++) {
             if (!array_key_exists($x, $left)) {
-                return true;
+                return -1;
             }
             if (!array_key_exists($x, $right)) {
-                return false;
+                return 1;
             }
             $result = $this->packetDataIsInOrder($left[$x], $right[$x]);
-            if (!\is_null($result)) {
+            if ($result !== 0) {
                 return $result;
             }
         }
 
-        return null;
+        return 0;
     }
 }
