@@ -15,39 +15,21 @@ class Day14
         $lines = $this->readInputAsLines();
         $state = $this->parseInput($lines);
         $grid = $this->fillGrid($state);
-
+        $moves = [[0, +1], [-1, +1], [+1, +1]];
         $sandCount = 0;
         while (true) {
             $sand = $state['sourceOfSand'];
-
             while (true) {
-                // Move down if possible
-                if ($grid[$sand['y'] + 1][$sand['x']] === '.') {
-                    $sand['y']++;
-                    if ($sand['y'] > $state['maxY']) {
-                        break 2;
+                foreach ($moves as $move) {
+                    [$xOffset, $yOffset] = $move;
+                    if ($grid[$sand['y'] + $yOffset][$sand['x'] + $xOffset] === '.') {
+                        $sand['x'] += $xOffset;
+                        $sand['y'] += $yOffset;
+                        if ($sand['x'] < $state['minX'] || $sand['x'] > $state['maxX'] || $sand['y'] > $state['maxY'] ) {
+                            break 3;
+                        }
+                        continue 2;
                     }
-                    continue;
-                }
-
-                // Move down left if possible
-                if ($grid[$sand['y'] + 1][$sand['x'] - 1] === '.') {
-                    $sand['x']--;
-                    $sand['y']++;
-                    if ($sand['x'] < $state['minX'] || $sand['y'] > $state['maxY']) {
-                        break 2;
-                    }
-                    continue;
-                }
-
-                // Move down right if possible
-                if ($grid[$sand['y'] + 1][$sand['x'] + 1] === '.') {
-                    $sand['x']++;
-                    $sand['y']++;
-                    if ($sand['x'] > $state['maxX'] || $sand['y'] > $state['maxY']) {
-                        break 2;
-                    }
-                    continue;
                 }
 
                 $grid[$sand['y']][$sand['x']] = 'o';
@@ -69,30 +51,19 @@ class Day14
             'isHorizontal' => true,
         ];
         $grid = $this->fillGrid($state);
+        $moves = [[0, +1], [-1, +1], [+1, +1]];
 
         $sandCount = 0;
         while (true) {
             $sand = $state['sourceOfSand'];
-
             while (true) {
-                // Move down if possible
-                if ($grid[$sand['y'] + 1][$sand['x']] === '.') {
-                    $sand['y']++;
-                    continue;
-                }
-
-                // Move down left if possible
-                if ($grid[$sand['y'] + 1][$sand['x'] - 1] === '.') {
-                    $sand['x']--;
-                    $sand['y']++;
-                    continue;
-                }
-
-                // Move down right if possible
-                if ($grid[$sand['y'] + 1][$sand['x'] + 1] === '.') {
-                    $sand['x']++;
-                    $sand['y']++;
-                    continue;
+                foreach ($moves as $move) {
+                    [$xOffset, $yOffset] = $move;
+                    if ($grid[$sand['y'] + $yOffset][$sand['x'] + $xOffset] === '.') {
+                        $sand['x'] += $xOffset;
+                        $sand['y'] += $yOffset;
+                        continue 2;
+                    }
                 }
 
                 $grid[$sand['y']][$sand['x']] = 'o';
@@ -100,7 +71,6 @@ class Day14
                 if ($sand === ['x' => 500, 'y' => 0]) {
                     break 2;
                 }
-
 
                 break;
             }
